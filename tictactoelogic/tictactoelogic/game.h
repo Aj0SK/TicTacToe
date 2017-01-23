@@ -11,7 +11,7 @@ class game
 {
 private:
 	vector<vector<int> >board;
-	int board_size, moves;
+	int board_size, moves, towin;
 	bool over;
 public:
 	int p_id, c_id;
@@ -23,9 +23,44 @@ public:
 	void aimove(int id);
 	bool is_over();
 
+	int longestrow(int a, int b, int k);
 	bool inrange(int a, int b);
+	bool iswinning(int a, int b);
+
 	void vypis();
 };
+
+bool game::iswinning(int a, int b)
+{
+	if (longestrow(a, b, 0) + longestrow(a, b, 4) -1 >= towin)return true;
+
+	if (longestrow(a, b, 1) + longestrow(a, b, 5) -1 >= towin)return true;
+
+	if (longestrow(a, b, 2) + longestrow(a, b, 6) -1>= towin)return true;
+
+	if (longestrow(a, b, 3) + longestrow(a, b, 7) -1 >= towin)return true;
+	return false;
+}
+
+int game::longestrow(int a, int b, int k)
+{
+	int kolko = 0;
+	//	[i-1;j-1]	[i-1;j]	[i-1; j+1]
+	//	[i;j-1]		[i;j]		[i;j+1]
+	//	[i+1;j-1]	[i+1;j]		[i+1j;j+1]
+	int dx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
+	int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+
+	if (board[a][b] == 0)return 0;
+
+	for (int i = 0;kolko<towin; ++i)
+	{
+		if (inrange(a + i*dx[k], b + i*dy[k]) && board[a][b] == board[a + i*dx[k]][b + i*dy[k]])kolko++;
+		else break;
+	}
+
+	return kolko;
+}
 
 bool game::inrange(int a, int b)
 {
@@ -49,6 +84,7 @@ void game::vypis()
 
 void game::newgame(int size, bool f_move)
 {
+	towin = 3;
 	board_size = size;
 	over = false;
 	moves = 0;
@@ -68,6 +104,7 @@ bool game::move(int id, int a, int b)
 	{
 		board[a][b] = id;
 		moves++;
+		if (iswinning(a, b))over = true;
 		return true;
 	}
 	cout << "Invalid Move" << endl;
