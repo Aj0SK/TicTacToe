@@ -95,6 +95,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		EndPaint(hWnd, &ps);
 		return 0;
 	}
+	case WM_LBUTTONUP:
+	{
+		InvalidateRect(hWnd, 0, 0);
+		hdc = BeginPaint(hWnd, &ps);
+		//
+		Graphics graphics(hdc);
+		Pen      pen(Color(255, 34, 139, 34));
+
+		int a, b;
+		a = LOWORD(lParam);
+		b = HIWORD(lParam);
+
+		if (a >= 0 && b >= 0 && a < n*polsize && b < n*polsize)
+		{
+			a = ((a / polsize));
+			b = ((b / polsize));
+			graphics.DrawEllipse(&pen, a*polsize, b*polsize, polsize, polsize);
+		}
+		EndPaint(hWnd, &ps);
+
+		return 0;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
