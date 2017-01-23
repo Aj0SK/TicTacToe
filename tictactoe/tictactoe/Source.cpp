@@ -1,4 +1,3 @@
-
 #include <windows.h>
 #include <objidl.h>
 #include <gdiplus.h>
@@ -51,7 +50,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		hInstance,                // program instance handle
 		NULL);                    // creation parameters
 
-	ShowWindow(hWnd, iCmdShow);
+	ShowWindow(hWnd, SW_MAXIMIZE);//ShowWindow(hWnd, iCmdShow);
 	UpdateWindow(hWnd);
 
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -62,7 +61,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 
 	GdiplusShutdown(gdiplusToken);
 	return msg.wParam;
+
 }
+bool r = true;
+int n = 5, polsize = 100;
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	WPARAM wParam, LPARAM lParam)
@@ -70,20 +72,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	HDC          hdc;
 	PAINTSTRUCT  ps;
 
-	int n=5, polsize = 100;
-
 	switch (message)
 	{
 	case WM_PAINT:
 	{
 		hdc = BeginPaint(hWnd, &ps);
-		//
 		Graphics graphics(hdc);
 		Pen      pen(Color(255, 34, 139, 34));
-
 		for (int i = 0; i <= n; ++i)graphics.DrawLine(&pen, i*polsize, 0, i*polsize, polsize*n);
 		for (int i = 0; i <= n; ++i)graphics.DrawLine(&pen, 0, i*polsize, polsize*n, i*polsize);
-		//
 
 		int a = 4, b = 4;
 		graphics.DrawLine(&pen, b*polsize, a*polsize, (b + 1)*polsize, (a + 1)*polsize);
@@ -111,7 +108,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		{
 			a = ((a / polsize));
 			b = ((b / polsize));
-			graphics.DrawEllipse(&pen, a*polsize, b*polsize, polsize, polsize);
+			if(r==true)graphics.DrawEllipse(&pen, a*polsize, b*polsize, polsize, polsize);
+			else
+			{
+				graphics.DrawLine(&pen, a*polsize, b*polsize, (a + 1)*polsize, (b + 1)*polsize);
+				graphics.DrawLine(&pen, (a + 1)*polsize, b*polsize, a*polsize, (b + 1)*polsize);
+			}
+			r = !r;
 		}
 		EndPaint(hWnd, &ps);
 
