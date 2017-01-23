@@ -70,13 +70,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	HDC          hdc;
 	PAINTSTRUCT  ps;
 
+	int n=5, polsize = 100;
+
 	switch (message)
 	{
 	case WM_PAINT:
+	{
 		hdc = BeginPaint(hWnd, &ps);
-		OnPaint(hdc);
+		//
+		Graphics graphics(hdc);
+		Pen      pen(Color(255, 34, 139, 34));
+
+		for (int i = 0; i <= n; ++i)graphics.DrawLine(&pen, i*polsize, 0, i*polsize, polsize*n);
+		for (int i = 0; i <= n; ++i)graphics.DrawLine(&pen, 0, i*polsize, polsize*n, i*polsize);
+		//
+
+		int a = 4, b = 4;
+		graphics.DrawLine(&pen, b*polsize, a*polsize, (b + 1)*polsize, (a + 1)*polsize);
+		graphics.DrawLine(&pen, (b + 1)*polsize, a*polsize, b*polsize, (a + 1)*polsize);
+
+		a = 2; b = 3;
+		graphics.DrawEllipse(&pen, b*polsize, a*polsize, polsize, polsize);
+
 		EndPaint(hWnd, &ps);
 		return 0;
+	}
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		return 0;
