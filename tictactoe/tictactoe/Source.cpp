@@ -108,7 +108,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		{
 			a = ((a / polsize));
 			b = ((b / polsize));
-			if(r==true)graphics.DrawEllipse(&pen, a*polsize, b*polsize, polsize, polsize);
+			if(r)graphics.DrawEllipse(&pen, a*polsize, b*polsize, polsize, polsize);
 			else
 			{
 				graphics.DrawLine(&pen, a*polsize, b*polsize, (a + 1)*polsize, (b + 1)*polsize);
