@@ -10,13 +10,11 @@ using namespace std;
 class game
 {
 private:
-	
+	vector<vector<int> >board;
 	int board_size, moves, towin;
 	bool over;
 public:
-	vector<vector<int> >board;
 	int p_id, c_id;
-	game();
 
 	void newgame(int size, bool f_move, int tw);
 
@@ -26,6 +24,8 @@ public:
 	bool is_over();
 	int size();
 
+	int owner(int a, int b);
+
 	bool inrange(int a, int b);
 	int longestrow(int a, int b, int k);
 	bool iswinning(int a, int b);
@@ -33,6 +33,12 @@ public:
 	int status();
 	void vypis();
 };
+
+int game::owner(int a, int b)
+{
+	if(inrange(a, b))return board[a][b];
+	else return -1;
+}
 
 int game::size()
 {
@@ -47,8 +53,7 @@ int game::status()
 	{
 		for (int i = 0; i < board_size; ++i)for (int j = 0; j < board_size; ++j)if (iswinning(i, j))
 		{
-			if (board[i][j] == 1)return 1;
-			else if (board[i][j] == 2)return 2;
+			return board[i][j];
 		}
 	}
 	return 0;
@@ -56,10 +61,10 @@ int game::status()
 
 bool game::iswinning(int a, int b)
 {
-	if (longestrow(a, b, 0) + longestrow(a, b, 4) -1 >= towin)return true;
-	if (longestrow(a, b, 1) + longestrow(a, b, 5) -1 >= towin)return true;
-	if (longestrow(a, b, 2) + longestrow(a, b, 6) -1 >= towin)return true;
-	if (longestrow(a, b, 3) + longestrow(a, b, 7) -1 >= towin)return true;
+	if (longestrow(a, b, 0) + longestrow(a, b, 4) - 1 >= towin)return true;
+	if (longestrow(a, b, 1) + longestrow(a, b, 5) - 1 >= towin)return true;
+	if (longestrow(a, b, 2) + longestrow(a, b, 6) - 1 >= towin)return true;
+	if (longestrow(a, b, 3) + longestrow(a, b, 7) - 1 >= towin)return true;
 	return false;
 }
 
@@ -105,13 +110,18 @@ void game::vypis()
 
 void game::newgame(int size, bool f_move, int tw)
 {
-	towin = tw;
+	if (size < 3)return;
 	board_size = size;
+	towin = tw;
+
 	over = false;
 	moves = 0;
+
 	board.resize(size, vector<int>(size));
 	for (int i = 0; i < size; ++i)fill(board[i].begin(), board[i].end(), 0);
+	
 	p_id = 1, c_id = 2;
+	
 	if (!f_move)
 	{
 		swap(p_id, c_id);
@@ -125,8 +135,7 @@ bool game::move(int id, int a, int b)
 	{
 		board[a][b] = id;
 		moves++;
-		if (iswinning(a, b))over = true;
-		if (moves == board_size*board_size)over = true;
+		if (iswinning(a, b) || moves == board_size*board_size)over = true;
 		return true;
 	}
 	cout << "Invalid Move" << endl;
@@ -141,11 +150,9 @@ pair<int, int> game::aimove(int id)
 	guess = rand() % (board_size*board_size-moves);
 	for(int i=0;i<board_size;++i)for (int j = 0; j < board_size; ++j)if(board[i][j] == 0)
 		{
-			if (pom == guess)
+			if (pom == guess && move(id, i, j))
 			{
-				move(id, i, j);
 				mymove = { i, j };
-				i += 1000;
 				return mymove;
 			}
 			pom++;
@@ -156,9 +163,4 @@ pair<int, int> game::aimove(int id)
 bool game::is_over()
 {
 	return over;
-}
-
-game::game()
-{
-	board = vector<vector<int> >(0);
 }

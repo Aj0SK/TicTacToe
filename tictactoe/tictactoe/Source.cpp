@@ -72,12 +72,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 	return msg.wParam;
 
 }
+/////////////////////////////////////////////////////////
 // current game
+/////////////////////////////////////////////////////////
 game my;
-int gsize = 5;
-int win = 4;
+int gsize = 7;
+int win = 3;
 int psize = 100;
-//
+/////////////////////////////////////////////////////////
 
 void funkcia(HWND &hWnd, game &toshow)
 {
@@ -87,8 +89,7 @@ void funkcia(HWND &hWnd, game &toshow)
 	HDC hdc = BeginPaint(hWnd, &ps);
 	Graphics graphics(hdc);
 	Pen      pen(Color(255, 34, 139, 34));
-	//pen.SetWidth(10);
-
+	
 	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, i*psize, 0, i*psize, psize*toshow.size());
 	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, 0, i*psize, psize*toshow.size(), i*psize);
 	
@@ -96,12 +97,12 @@ void funkcia(HWND &hWnd, game &toshow)
 	{
 		for (int j = 0; j < toshow.size(); ++j)
 		{
-			if (toshow.board[i][j] == 1)
+			if (toshow.owner(i, j) == 1)
 			{
 				graphics.DrawLine(&pen, j*psize, i*psize, (j + 1)*psize, (i + 1)*psize);
 				graphics.DrawLine(&pen, (j + 1)*psize, i*psize, j*psize, (i + 1)*psize);
 			}
-			if (toshow.board[i][j] == 2)
+			if (toshow.owner(i, j) == 2)
 			{
 				graphics.DrawEllipse(&pen, j*psize , i*psize , psize , psize );
 			}
@@ -115,8 +116,8 @@ void funkcia(HWND &hWnd, game &toshow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
-	HDC          hdc;
-	PAINTSTRUCT  ps;
+	//HDC          hdc;
+	//PAINTSTRUCT  ps;
 
 	switch (message)
 	{
@@ -125,10 +126,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		return 0;
 	}
 	case WM_LBUTTONUP:
-	{
-		//MessageBox(hWnd, L"hPlus was clicked", NULL, MB_OK);
-		//InvalidateRect(hWnd, 0, 0);
-		
+	{	
 		int a, b;
 		a = HIWORD(lParam);
 		b = LOWORD(lParam);
@@ -137,9 +135,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		{
 			a = ((a / psize));
 			b = ((b / psize));
-			
-			if (my.move(my.p_id, a, b));
-			if (!my.is_over())
+
+			if (my.move(my.p_id, a, b) && !my.is_over())
 			{
 				pair<int, int>oko = my.aimove(my.c_id), pom = { -1, -1 };
 				if (oko != pom)
