@@ -6,7 +6,8 @@ int main()
 {
 	int a, b;
 	game my;
-	my.newgame(3, true);
+	my.newgame(5, true);
+	my.aimove(my.c_id);
 	while (cin >> a >> b)
 	{
 		my.move(my.p_id, a, b);
@@ -16,6 +17,8 @@ int main()
 		cout << "Tah2" << endl;
 		if (my.is_over())cout << "Konieeec" << endl;
 		my.vypis();
+		if (my.is_over())break;
 	}
+	cout << my.status() << endl;
 	return 0;
 }

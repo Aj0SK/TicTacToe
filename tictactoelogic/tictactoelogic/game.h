@@ -20,15 +20,37 @@ public:
 	void newgame(int size, bool f_move);
 
 	bool move(int id, int a, int b);
-	void aimove(int id);
+	pair<int, int> aimove(int id);
 	bool is_over();
+	int size();
 
 	int longestrow(int a, int b, int k);
 	bool inrange(int a, int b);
 	bool iswinning(int a, int b);
 
+	int status();
 	void vypis();
 };
+
+int game::size()
+{
+	return board_size;
+}
+
+
+int game::status()
+{
+	if (!over)return -1;
+	else
+	{
+		for (int i = 0; i < board_size; ++i)for (int j = 0; j < board_size; ++j)if (iswinning(i, j))
+		{
+			if (board[i][j] == 1)return 1;
+			else if (board[i][j] == 2)return 2;
+		}
+	}
+	return 0;
+}
 
 bool game::iswinning(int a, int b)
 {
@@ -100,19 +122,21 @@ void game::newgame(int size, bool f_move)
 
 bool game::move(int id, int a, int b)
 {
-	if (inrange(a, b) && board[a][b] == 0)
+	if (!over && inrange(a, b) && board[a][b] == 0)
 	{
 		board[a][b] = id;
 		moves++;
 		if (iswinning(a, b))over = true;
+		if (moves == board_size*board_size)over = true;
 		return true;
 	}
 	cout << "Invalid Move" << endl;
 	return false;
 }
 
-void game::aimove(int id)
+pair<int, int> game::aimove(int id)
 {
+	pair<int, int>mymove;
 	int guess, pom=0;
 	srand(time(NULL));
 	guess = rand() % (board_size*board_size-moves);
@@ -121,11 +145,13 @@ void game::aimove(int id)
 			if (pom == guess)
 			{
 				move(id, i, j);
+				mymove = { i, j };
 				i += 1000;
-				break;
+				return mymove;
 			}
 			pom++;
 		}
+	return{ -1, -1 };
 }
 
 bool game::is_over()
