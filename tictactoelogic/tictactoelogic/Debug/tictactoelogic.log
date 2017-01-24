@@ -1,4 +1,4 @@
 ﻿  Source.cpp
-c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.h(133): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.h(140): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
   tictactoelogic.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoelogic\Debug\tictactoelogic.exe
   tictactoelogic.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoelogic\Debug\tictactoelogic.pdb (Full PDB)

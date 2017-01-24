@@ -3,29 +3,31 @@
 #include<vector>
 #include<algorithm>
 #include<random>
-#include<time.h>
+#include<ctime>
 
 using namespace std;
 
 class game
 {
 private:
-	vector<vector<int> >board;
+	
 	int board_size, moves, towin;
 	bool over;
 public:
+	vector<vector<int> >board;
 	int p_id, c_id;
 	game();
 
-	void newgame(int size, bool f_move);
+	void newgame(int size, bool f_move, int tw);
 
 	bool move(int id, int a, int b);
 	pair<int, int> aimove(int id);
+
 	bool is_over();
 	int size();
 
-	int longestrow(int a, int b, int k);
 	bool inrange(int a, int b);
+	int longestrow(int a, int b, int k);
 	bool iswinning(int a, int b);
 
 	int status();
@@ -55,11 +57,8 @@ int game::status()
 bool game::iswinning(int a, int b)
 {
 	if (longestrow(a, b, 0) + longestrow(a, b, 4) -1 >= towin)return true;
-
 	if (longestrow(a, b, 1) + longestrow(a, b, 5) -1 >= towin)return true;
-
-	if (longestrow(a, b, 2) + longestrow(a, b, 6) -1>= towin)return true;
-
+	if (longestrow(a, b, 2) + longestrow(a, b, 6) -1 >= towin)return true;
 	if (longestrow(a, b, 3) + longestrow(a, b, 7) -1 >= towin)return true;
 	return false;
 }
@@ -104,9 +103,9 @@ void game::vypis()
 	
 }
 
-void game::newgame(int size, bool f_move)
+void game::newgame(int size, bool f_move, int tw)
 {
-	towin = 3;
+	towin = tw;
 	board_size = size;
 	over = false;
 	moves = 0;

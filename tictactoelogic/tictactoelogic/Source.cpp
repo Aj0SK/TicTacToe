@@ -6,7 +6,7 @@ int main()
 {
 	int a, b;
 	game my;
-	my.newgame(5, true);
+	my.newgame(5, true, 3);
 	my.aimove(my.c_id);
 	while (cin >> a >> b)
 	{

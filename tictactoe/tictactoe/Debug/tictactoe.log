@@ -1,4 +1,7 @@
 ﻿  Source.cpp
-c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.h(141): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.h(140): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+c:\users\andre_000\desktop\tictactoe\tictactoe\tictactoe\source.cpp(141): warning C4390: ';': empty controlled statement found; is this the intent?
+c:\users\andre_000\desktop\tictactoe\tictactoe\tictactoe\source.cpp(118): warning C4101: 'hdc': unreferenced local variable
+c:\users\andre_000\desktop\tictactoe\tictactoe\tictactoe\source.cpp(119): warning C4101: 'ps': unreferenced local variable
   tictactoe.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoe\Debug\tictactoe.exe
   tictactoe.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoe\Debug\tictactoe.pdb (Full PDB)
