@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<vector>
+#include<queue>
 #include<algorithm>
 #include<random>
 #include<ctime>
@@ -13,6 +14,12 @@ private:
 	vector<vector<int> >board;
 	int board_size, moves, towin;
 	bool over;
+	
+	void bfs(vector<vector<int> >&pg);
+
+	int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
+	int dy[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+
 public:
 	int p_id, c_id;
 
@@ -74,8 +81,8 @@ int game::longestrow(int a, int b, int k)
 	//	[i-1;j-1]	[i-1;j]	[i-1; j+1]
 	//	[i;j-1]		[i;j]		[i;j+1]
 	//	[i+1;j-1]	[i+1;j]		[i+1j;j+1]
-	int dx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
-	int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+	//int dx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
+	//int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
 	if (board[a][b] == 0)return 0;
 
@@ -141,12 +148,17 @@ bool game::move(int id, int a, int b)
 	cout << "Invalid Move" << endl;
 	return false;
 }
+bool game::is_over()
+{
+	return over;
+}
 
-pair<int, int> game::aimove(int id)
+/*pair<int, int> game::aimove(int id)
 {
 	pair<int, int>mymove;
 	int guess, pom=0;
 	srand(time(NULL));
+	
 	guess = rand() % (board_size*board_size-moves);
 	for(int i=0;i<board_size;++i)for (int j = 0; j < board_size; ++j)if(board[i][j] == 0)
 		{
@@ -158,9 +170,53 @@ pair<int, int> game::aimove(int id)
 			pom++;
 		}
 	return{ -1, -1 };
+}*/
+
+pair<int, int> game::aimove(int id)
+{
+	pair<int, int>mymove;
+	srand(time(NULL));
+	vector<vector<int> >dist(board_size, vector<int>(board_size, -1));
+	bfs(dist);
+
+	/*cout << "Hracia plocha: " << endl;
+	for (int i = 0; i < board_size; ++i)
+	{
+		for (int j = 0; j < board_size; ++j)
+		{
+			cout << dist[i][j] << " ";
+		}
+		cout << endl;
+	}*/
+
+	return{ -1, -1 };
 }
 
-bool game::is_over()
+void game::bfs(vector<vector<int> >&pg)
 {
-	return over;
+	int a, b, na, nb;
+	queue<int>Q;
+	for (int i = 0; i < board_size; ++i)
+		for (int j = 0; j < board_size; ++j)if(board[i][j] != 0)
+	{
+			pg[i][j] = 0;
+			Q.push(i);
+			Q.push(j);
+	}
+	
+	while (!Q.empty())
+	{
+		a = Q.front(); Q.pop();
+		b = Q.front(); Q.pop();
+		for (int i = 0; i < 8; ++i)
+		{
+			na = a + dx[i];
+			nb = b + dy[i];
+			if (inrange(na, nb) && pg[na][nb]==-1)
+			{
+				Q.push(na); Q.push(nb);
+				pg[na][nb] = pg[a][b] + 1;
+			}
+		}
+	}
 }
