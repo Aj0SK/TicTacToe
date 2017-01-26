@@ -36,6 +36,7 @@ public:
 	bool inrange(int a, int b);
 	int longestrow(int a, int b, int k);
 	bool iswinning(int a, int b);
+	int most(int a, int b);
 
 	int status();
 	void vypis();
@@ -73,6 +74,13 @@ bool game::iswinning(int a, int b)
 	if (longestrow(a, b, 2) + longestrow(a, b, 6) - 1 >= towin)return true;
 	if (longestrow(a, b, 3) + longestrow(a, b, 7) - 1 >= towin)return true;
 	return false;
+}
+
+int game::most(int a, int b)
+{
+	int maxi = -1;
+	for (int i = 0; i < 4;++i)maxi=max(maxi, longestrow(a, b, i) + longestrow(a, b, i+4) - 1);
+	return maxi;
 }
 
 int game::longestrow(int a, int b, int k)
@@ -172,22 +180,44 @@ bool game::is_over()
 	return{ -1, -1 };
 }*/
 
+
 pair<int, int> game::aimove(int id)
 {
-	pair<int, int>mymove;
-	srand(time(NULL));
+	vector<int>oko, mozne;
+	pair<int, int>mymove; 
+	int a, b, guess, maxx = -1;
+	
 	vector<vector<int> >dist(board_size, vector<int>(board_size, -1));
-	bfs(dist);
+	if(moves!=0)bfs(dist);
 
 	/*cout << "Hracia plocha: " << endl;
-	for (int i = 0; i < board_size; ++i)
-	{
-		for (int j = 0; j < board_size; ++j)
-		{
-			cout << dist[i][j] << " ";
-		}
-		cout << endl;
+	for (int i = 0; i < board_size; ++i){for (int j = 0; j < board_size; ++j){cout << dist[i][j] << " ";}
+	cout << endl;
 	}*/
+
+	for (int i = 0; i < board_size; ++i)for (int j = 0; j < board_size; ++j)if(board[i][j] == 0 && dist[i][j] <= 1)
+	{
+		mozne.push_back(i*board_size + j);
+	}
+
+	//int guess = rand() % mozne.size();
+	
+	for (int i = 0; i < mozne.size(); ++i)
+	{
+		a = mozne[i] / board_size;
+		b = mozne[i] % board_size;
+		board[a][b] = id;
+		
+		if (most(a, b) > maxx)oko.clear(), oko.push_back(mozne[i]), maxx = most(a, b), guess = i;
+		else if (most(a, b) == maxx)oko.push_back(mozne[i]);
+		board[a][b] = 0;
+	}
+	//cout << random() << endl;
+	guess = rand() % oko.size();
+	//cout << oko.size() << endl;
+	//cout << oko[guess] / board_size << " " << oko[guess] % board_size << endl;
+	move(id, oko[guess] / board_size, oko[guess] % board_size);
+	return{ oko[guess]/board_size, oko[guess]%board_size};
 
 	return{ -1, -1 };
 }

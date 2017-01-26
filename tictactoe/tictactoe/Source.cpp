@@ -70,15 +70,14 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 
 	GdiplusShutdown(gdiplusToken);
 	return msg.wParam;
-
 }
 /////////////////////////////////////////////////////////
 // current game
 /////////////////////////////////////////////////////////
 game my;
-int gsize = 7;
-int win = 3;
-int psize = 100;
+int gsize = 10;
+int win = 4;
+int psize = 50;
 /////////////////////////////////////////////////////////
 
 void funkcia(HWND &hWnd, game &toshow)

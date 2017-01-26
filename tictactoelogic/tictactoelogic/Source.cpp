@@ -4,14 +4,11 @@ using namespace std;
 
 int main()
 {
+	srand(time(NULL));
 	int a, b;
 	game my;
-	my.newgame(500, true, 3);
-	my.move(my.p_id, 0, 3);
-	my.move(my.p_id, 2, 0);
-	my.move(my.p_id, 1, 1);	
-	my.move(my.p_id, 8, 8);
-	my.aimove(my.c_id);
+	for (int i = 0; i < 500;++i)cout<<i<<endl, my.newgame(5, false, 3);
+	
 		
 	return 0;
 }
