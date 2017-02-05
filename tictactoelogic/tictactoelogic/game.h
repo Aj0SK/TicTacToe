@@ -14,47 +14,54 @@ private:
 	vector<vector<int> >board;
 	int board_size, moves, towin;
 	bool over;
-	
-	void bfs(vector<vector<int> >&pg);
+
 
 	int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 	int dy[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
-public:
-	int p_id, c_id;
-
-	void newgame(int size, bool f_move, int tw);
-
-	bool move(int id, int a, int b);
-	pair<int, int> aimove(int id);
-
-	bool is_over();
-	int size();
-
-	int owner(int a, int b);
-
+	void bfs(vector<vector<int> >&pg);
+	
 	bool inrange(int a, int b);
 	int longestrow(int a, int b, int k);
 	bool iswinning(int a, int b);
 	int most(int a, int b);
 
+public:
+
+	int p_id, c_id;
+
+	bool newgame(int size, bool f_move, int tw);
+	
+	int size();
+	bool is_over();
+
+	bool move(int id, int a, int b);
+	pair<int, int> aimove(int id);
+
+	int owner(int a, int b);
+
 	int status();
 	void vypis();
 };
 
-int game::owner(int a, int b)
-{
-	if(inrange(a, b))return board[a][b];
-	else return -1;
-}
-
-int game::size()
+int game::size()//returns size of current board
 {
 	return board_size;
 }
 
+bool game::inrange(int a, int b)//returns true if indexes represents valid position, false otherwise
+{
+	if (a >= 0 && b >= 0 && a < board_size && b < board_size)return true;
+	return false;
+}
 
-int game::status()
+int game::owner(int a, int b)//returns id of owner of field on position [a][b], -1 in case of invalid index
+{
+	if( inrange(a, b) )return board[a][b];
+	return -1;
+}
+
+int game::status()//return -1 in case game is not ended, returns id of player that wins or 0 in case game is over but there is no winner(draw)
 {
 	if (!over)return -1;
 	else
@@ -67,51 +74,44 @@ int game::status()
 	return 0;
 }
 
-bool game::iswinning(int a, int b)
+int game::longestrow(int a, int b, int k)//returns size of longest sequence which contains field [a][b] in direction k
 {
-	if (longestrow(a, b, 0) + longestrow(a, b, 4) - 1 >= towin)return true;
-	if (longestrow(a, b, 1) + longestrow(a, b, 5) - 1 >= towin)return true;
-	if (longestrow(a, b, 2) + longestrow(a, b, 6) - 1 >= towin)return true;
-	if (longestrow(a, b, 3) + longestrow(a, b, 7) - 1 >= towin)return true;
-	return false;
-}
-
-int game::most(int a, int b)
-{
-	int maxi = -1;
-	for (int i = 0; i < 4;++i)maxi=max(maxi, longestrow(a, b, i) + longestrow(a, b, i+4) - 1);
-	return maxi;
-}
-
-int game::longestrow(int a, int b, int k)
-{
-	int kolko = 0;
 	//	[i-1;j-1]	[i-1;j]	[i-1; j+1]
 	//	[i;j-1]		[i;j]		[i;j+1]
 	//	[i+1;j-1]	[i+1;j]		[i+1j;j+1]
 	//int dx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 	//int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
-	if (board[a][b] == 0)return 0;
+	if (!inrange(a, b) || board[a][b] == 0)return 0;
+	
+	int result = 0;
 
-	for (int i = 0;kolko<towin; ++i)
+	for (int i = 0; result<towin; ++i)
 	{
-		if (inrange(a + i*dx[k], b + i*dy[k]) && board[a][b] == board[a + i*dx[k]][b + i*dy[k]])kolko++;
+		if (inrange(a + i*dx[k], b + i*dy[k]) && board[a][b] == board[a + i*dx[k]][b + i*dy[k]])result++;
 		else break;
 	}
 
-	return kolko;
+	return result;
 }
 
-bool game::inrange(int a, int b)
+int game::most(int a, int b)//returns longest sequenci which contains [a][b]
 {
-	if (a >= 0 && b >= 0 && a < board_size && b < board_size)return true;
+	int maxi = -1;
+	if (!inrange(a, b))return maxi;
+	for (int i = 0; i < 4; ++i)maxi = max(maxi, longestrow(a, b, i) + longestrow(a, b, i + 4) - 1);
+	return maxi;
+}
+
+bool game::iswinning(int a, int b)//return true if field [a][b] is in winning succession in any direction
+{
+	if (most(a, b) >= towin)return true;
 	return false;
 }
 
-void game::vypis()
+void game::vypis()//method used for visualisation of board in early version and for testing purpose
 {
-	cout << "Hracia plocha: " << endl;
+	cout << "Board: " << endl;
 	for (int i = 0; i < board_size; ++i)
 	{
 		for (int j = 0; j < board_size; ++j)
@@ -120,18 +120,18 @@ void game::vypis()
 		}
 		cout << endl;
 	}
-	
 }
 
-void game::newgame(int size, bool f_move, int tw)
+bool game::newgame(int size, bool f_move, int tw)
 {
-	if (size < 3)return;
+	if (size < 1 || size > 1000 || tw > size || tw < 1)return false;
 	board_size = size;
 	towin = tw;
 
 	over = false;
 	moves = 0;
 
+	board.clear();
 	board.resize(size, vector<int>(size));
 	for (int i = 0; i < size; ++i)fill(board[i].begin(), board[i].end(), 0);
 	
@@ -142,6 +142,7 @@ void game::newgame(int size, bool f_move, int tw)
 		swap(p_id, c_id);
 		aimove(c_id);
 	}
+	return true;
 }
 
 bool game::move(int id, int a, int b)

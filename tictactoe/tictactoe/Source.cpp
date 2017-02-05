@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <objidl.h>
+#include<string>
 #include <gdiplus.h>
 #include"../../tictactoelogic/tictactoelogic/game.h"
 
@@ -15,7 +16,8 @@ VOID OnPaint(HDC hdc)
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-HWND hwndButton1, hwndButton2;
+HWND hwndButton1, hwndButton2, hwndupdate;
+HWND TextBox1, TextBox2;
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 {
@@ -55,9 +57,21 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		NULL);                    // creation parameters
 
 	hwndButton1 = CreateWindow(L"BUTTON", L"New Game with my start", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		900, 500, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
+		0, 0, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
 	hwndButton2 = CreateWindow(L"BUTTON", L"New Game with pc start", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		900, 530, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
+		0, 30, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
+
+	TextBox1 = CreateWindow(L"Edit", L"Board Size", 
+		WS_BORDER | WS_CHILD | WS_VISIBLE,
+		170, 0, 100, 30, hWnd,
+		NULL, NULL, NULL);
+	TextBox2 = CreateWindow(L"Edit", L"To win",
+		WS_BORDER | WS_CHILD | WS_VISIBLE,
+		170, 30, 100, 30, hWnd,
+		NULL, NULL, NULL);
+
+	hwndupdate = CreateWindow(L"BUTTON", L"Update", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
+		270, 0, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
 
 	ShowWindow(hWnd, SW_MAXIMIZE);//ShowWindow(hWnd, iCmdShow);
 	UpdateWindow(hWnd);
@@ -75,9 +89,10 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 // current game
 /////////////////////////////////////////////////////////
 game my;
-int gsize = 10;
+int gsize = 5;
 int win = 4;
-int psize = 50;
+int psize = 40;
+int offsetx=10, offsety=90;
 /////////////////////////////////////////////////////////
 
 void funkcia(HWND &hWnd, game &toshow)
@@ -89,8 +104,8 @@ void funkcia(HWND &hWnd, game &toshow)
 	Graphics graphics(hdc);
 	Pen      pen(Color(255, 34, 139, 34));
 	
-	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, i*psize, 0, i*psize, psize*toshow.size());
-	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, 0, i*psize, psize*toshow.size(), i*psize);
+	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, offsetx+i*psize, offsety+0, offsetx+i*psize, offsety+psize*toshow.size());
+	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, offsetx+0, offsety+i*psize, offsetx+psize*toshow.size(), offsety+i*psize);
 	
 	for (int i = 0; i < toshow.size(); ++i)
 	{
@@ -98,12 +113,12 @@ void funkcia(HWND &hWnd, game &toshow)
 		{
 			if (toshow.owner(i, j) == 1)
 			{
-				graphics.DrawLine(&pen, j*psize, i*psize, (j + 1)*psize, (i + 1)*psize);
-				graphics.DrawLine(&pen, (j + 1)*psize, i*psize, j*psize, (i + 1)*psize);
+				graphics.DrawLine(&pen, offsetx+j*psize, offsety+i*psize, offsetx+(j + 1)*psize, offsety+(i + 1)*psize);
+				graphics.DrawLine(&pen, offsetx+(j + 1)*psize, offsety+i*psize, offsetx+j*psize, offsety+(i + 1)*psize);
 			}
 			if (toshow.owner(i, j) == 2)
 			{
-				graphics.DrawEllipse(&pen, j*psize , i*psize , psize , psize );
+				graphics.DrawEllipse(&pen, offsetx+j*psize , offsety+i*psize , psize , psize );
 			}
 		}
 	}
@@ -115,25 +130,19 @@ void funkcia(HWND &hWnd, game &toshow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	WPARAM wParam, LPARAM lParam)
 {
-	//HDC          hdc;
-	//PAINTSTRUCT  ps;
 
 	switch (message)
 	{
-	case WM_PAINT:
-	{	
-		return 0;
-	}
 	case WM_LBUTTONUP:
 	{	
 		int a, b;
 		a = HIWORD(lParam);
 		b = LOWORD(lParam);
 
-		if (a >= 0 && b >= 0 && a < my.size()*psize && b < my.size()*psize)
+		if (a >= offsety && b >= offsetx && a < offsety+my.size()*psize && b < offsetx+my.size()*psize)
 		{
-			a = ((a / psize));
-			b = ((b / psize));
+			a = (((a - offsety) / psize));
+			b = (((b - offsetx) / psize));
 
 			if (my.move(my.p_id, a, b) && !my.is_over())
 			{
@@ -157,19 +166,39 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	}
 	case WM_COMMAND:
 	{
-		if ((HWND)lParam == hwndButton1 || (HWND)lParam == hwndButton2)
+		if ((HWND)lParam == hwndupdate)
+		{
+			int value1=0, value2=0,  pom = 0;
+			wchar_t a[300] = {0}, b[300] = { 0 };
+			pom = GetWindowText(TextBox1, a, 20);
+			pom = GetWindowText(TextBox2, b, 20);
+			wstring wa(a), wb(b);
+			string stra(wa.begin(), wa.end());
+			string strb(wb.begin(), wb.end());
+			value1 = atoi(stra.c_str());
+			value2 = atoi(strb.c_str());
+
+			RECT rect;
+			GetWindowRect(hWnd, &rect);
+
+			if (value1 > 0 && value2 > 0)
+			{
+				gsize = value1;
+				win = value2;
+				psize = min(rect.right - rect.left - 2 * offsetx, rect.bottom - rect.top -2*offsety) / gsize ;
+			}
+		}
+		else if ((HWND)lParam == hwndButton1 || (HWND)lParam == hwndButton2)
 		{
 			if ((HWND)lParam == hwndButton1)
 			{
-				my.newgame(gsize, true, win);
-				funkcia(hWnd, my);
-				//MessageBox(hWnd, L"Ok1 stlacene", NULL, MB_OK);
+				if( my.newgame(gsize, true, win) )funkcia(hWnd, my);
+				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 			else if ((HWND)lParam == hwndButton2)
 			{
-				my.newgame(gsize, false, win);
-				funkcia(hWnd, my);
-				//MessageBox(hWnd, L"Ok2 stlacene", NULL, MB_OK);
+				if (my.newgame(gsize, false, win))funkcia(hWnd, my);
+				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 		}
 		
