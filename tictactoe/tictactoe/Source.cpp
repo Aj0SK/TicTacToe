@@ -91,7 +91,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 game my;
 int gsize = 5;
 int win = 4;
-int psize = 40;
+int psize = 50;
 int offsetx=10, offsety=90;
 /////////////////////////////////////////////////////////
 

@@ -189,12 +189,7 @@ pair<int, int> game::aimove(int id)
 	int a, b, guess, maxx = -1;
 	
 	vector<vector<int> >dist(board_size, vector<int>(board_size, -1));
-	if(moves!=0)bfs(dist);
-
-	/*cout << "Hracia plocha: " << endl;
-	for (int i = 0; i < board_size; ++i){for (int j = 0; j < board_size; ++j){cout << dist[i][j] << " ";}
-	cout << endl;
-	}*/
+	if(moves != 0)bfs(dist);
 
 	for (int i = 0; i < board_size; ++i)for (int j = 0; j < board_size; ++j)if(board[i][j] == 0 && dist[i][j] <= 1)
 	{
@@ -227,8 +222,7 @@ void game::bfs(vector<vector<int> >&pg)
 {
 	int a, b, na, nb;
 	queue<int>Q;
-	for (int i = 0; i < board_size; ++i)
-		for (int j = 0; j < board_size; ++j)if(board[i][j] != 0)
+	for (int i = 0; i < board_size; ++i) for (int j = 0; j < board_size; ++j) if(board[i][j] != 0)
 	{
 			pg[i][j] = 0;
 			Q.push(i);

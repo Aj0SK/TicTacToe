@@ -1,3 +1,14 @@
+tictactoe/Debug
+tictactoe/tictactoe/Debug
+
+tictactoelogic/Debug
+tictactoe/tictactoelogic/Debug
+
+*.vcxproj
+*.sln
+*.db
+*.filters
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
