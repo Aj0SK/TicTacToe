@@ -1,4 +1,4 @@
-﻿  Source.cpp
-c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.h(149): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+﻿  game.cpp
+c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.cpp(159): warning C4018: '<': signed/unsigned mismatch
   tictactoe.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoe\Debug\tictactoe.exe
   tictactoe.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoe\Debug\tictactoe.pdb (Full PDB)
