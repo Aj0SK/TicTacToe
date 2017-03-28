@@ -12,26 +12,29 @@ using namespace std;
 
 class game
 {
+
 private:
+
 	vector<vector<int> >board;
 	int board_size, moves, towin;
 	bool over;
 
 	int dx[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
 	int dy[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };
+	
+	bool is_winning(int row, int column);
+	bool is_inrange(int row, int column);
+	
+	int most(int row, int column);
+	int longestrow(int row, int column, int direction);
 
 	void bfs(vector<vector<int> >&pg);
-	
-	bool inrange(int row, int column);
-	int longestrow(int row, int column, int direction);
-	bool iswinning(int row, int column);
-	int most(int row, int column);
 
 public:
 
 	int p_id, c_id;
 
-	bool is_creatable(int b_size, int to_win);
+	bool is_createable(int b_size, int to_win);
 	bool newgame(int size, bool first_move, int tw);
 	
 	int size();

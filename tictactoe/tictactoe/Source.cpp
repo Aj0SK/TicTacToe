@@ -8,13 +8,6 @@
 using namespace Gdiplus;
 #pragma comment (lib,"Gdiplus.lib")
 
-VOID OnPaint(HDC hdc)
-{
-	Graphics graphics(hdc);
-	Pen      pen(Color(255, 0, 0, 255));
-	graphics.DrawLine(&pen, 0, 0, 200, 100);
-}
-
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
 HWND hwndButton1, hwndButton2;
@@ -94,33 +87,38 @@ int psize = 50;
 int offsetx = 10, offsety = 90;
 /////////////////////////////////////////////////////////
 
+//Function which drawes actual game
 void draw(HWND &hWnd, game &toshow)
 {
 	InvalidateRect(hWnd, 0, true);
 
+	//sets graphic properties
 	PAINTSTRUCT  ps;
 	HDC hdc = BeginPaint(hWnd, &ps);
 	Graphics graphics(hdc);
-	Pen      pen(Color(255, 34, 139, 34));
+	// if you hate my colors :P, you can change it here :
+	Pen game_pen(Color(255, 255, 0, 0));
+	Pen	circle_pen(Color(255, 0, 0, 0));
+	Pen cross_pen(Color(255, 34, 139, 34));
 	
 	for (int i = 0; i <= toshow.size(); ++i)
 	{
-		graphics.DrawLine(&pen, offsetx + i*psize, offsety + 0, offsetx + i*psize, offsety + psize*toshow.size());
-		graphics.DrawLine(&pen, offsetx + 0, offsety + i*psize, offsetx + psize*toshow.size(), offsety + i*psize);
+		graphics.DrawLine(&game_pen, offsetx + i*psize, offsety + 0, offsetx + i*psize, offsety + psize*toshow.size());//draw vertical lines
+		graphics.DrawLine(&game_pen, offsetx + 0, offsety + i*psize, offsetx + psize*toshow.size(), offsety + i*psize);//draws horizontal lines
 	}
 
 	for (int i = 0; i < toshow.size(); ++i)
 	{
 		for (int j = 0; j < toshow.size(); ++j)
 		{
-			if (toshow.owner(i, j) == 1)
+			if (toshow.owner(i, j) == 1)//we have to draw cross
 			{
-				graphics.DrawLine(&pen, offsetx+j*psize, offsety+i*psize, offsetx+(j + 1)*psize, offsety+(i + 1)*psize);
-				graphics.DrawLine(&pen, offsetx+(j + 1)*psize, offsety+i*psize, offsetx+j*psize, offsety+(i + 1)*psize);
+				graphics.DrawLine(&cross_pen, offsetx+j*psize, offsety+i*psize, offsetx+(j + 1)*psize, offsety+(i + 1)*psize);
+				graphics.DrawLine(&cross_pen, offsetx+(j + 1)*psize, offsety+i*psize, offsetx+j*psize, offsety+(i + 1)*psize);
 			}
-			if (toshow.owner(i, j) == 2)
+			if (toshow.owner(i, j) == 2)//we have to draw circle
 			{
-				graphics.DrawEllipse(&pen, offsetx+j*psize, offsety+i*psize, psize, psize );
+				graphics.DrawEllipse(&circle_pen, offsetx+j*psize, offsety+i*psize, psize, psize );
 			}
 		}
 	}
@@ -128,11 +126,9 @@ void draw(HWND &hWnd, game &toshow)
 	EndPaint(hWnd, &ps);
 }
 
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
-	WPARAM wParam, LPARAM lParam)
+//Function which manages user events as buttons and click
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
 	switch (message)
 	{
 	case WM_LBUTTONUP:
@@ -141,10 +137,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		a = HIWORD(lParam);
 		b = LOWORD(lParam);
 
-		if (a >= offsety && 
-			b >= offsetx && 
-			a < offsety+my.size()*psize && 
-			b < offsetx+my.size()*psize )
+		if (a >= offsety && b >= offsetx && a < offsety+my.size()*psize && b < offsetx + my.size()*psize )
 		{
 			a = (((a - offsety) / psize));
 			b = (((b - offsetx) / psize));
@@ -152,6 +145,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 			if (my.move(my.p_id, a, b) && !my.is_over())
 			{
 				pair<int, int>mo = my.aimove(my.c_id), pom = { -1, -1 };
+
 				if (mo != pom)
 				{
 					a = mo.first;
@@ -175,6 +169,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		{
 			int value1 = 0, value2 = 0, pom = 0;
 			wchar_t a[30] = { 0 }, b[30] = { 0 };
+
 			pom = GetWindowText(TextBox1, a, 20);
 			pom = GetWindowText(TextBox2, b, 20);
 
@@ -184,7 +179,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 			RECT rect;
 			GetWindowRect(hWnd, &rect);
 
-			if (my.is_creatable(value1, value2) )
+			if ( my.is_createable(value1, value2) )
 			{
 				gsize = value1;
 				win = value2;
