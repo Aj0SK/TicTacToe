@@ -1,8 +1,12 @@
 tictactoe/Debug
-tictactoe/tictactoe/Debug
-
 tictactoelogic/Debug
-tictactoe/tictactoelogic/Debug
+
+tictactoe/.vs
+tictactoelogic/.vs
+	
+tictactoe/tictactoe/Debug
+tictactoelogic/tictactoelogic/Debug
+
 
 *.vcxproj
 *.sln
