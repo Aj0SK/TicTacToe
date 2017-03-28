@@ -1,9 +1,9 @@
 #include <windows.h>
 #include <objidl.h>
-#include<string>
+#include <string>
 #include <gdiplus.h>
 
-#include"../../tictactoelogic/tictactoelogic/game.h"
+#include "../../tictactoelogic/tictactoelogic/game.h"
 
 using namespace Gdiplus;
 #pragma comment (lib,"Gdiplus.lib")
@@ -17,7 +17,7 @@ VOID OnPaint(HDC hdc)
 
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 
-HWND hwndButton1, hwndButton2, hwndupdate;
+HWND hwndButton1, hwndButton2;
 HWND TextBox1, TextBox2;
 
 INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
@@ -71,9 +71,6 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		170, 30, 100, 30, hWnd,
 		NULL, NULL, NULL);
 
-	hwndupdate = CreateWindow(L"BUTTON", L"Update", WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
-		270, 0, 170, 30, hWnd, NULL, (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), NULL);
-
 	ShowWindow(hWnd, SW_MAXIMIZE);//ShowWindow(hWnd, iCmdShow);
 	UpdateWindow(hWnd);
 
@@ -86,17 +83,18 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 	GdiplusShutdown(gdiplusToken);
 	return msg.wParam;
 }
+
 /////////////////////////////////////////////////////////
 // current game
 /////////////////////////////////////////////////////////
 game my;
 int gsize = 5;
-int win = 4;
+int win = 3;
 int psize = 50;
-int offsetx=10, offsety=90;
+int offsetx = 10, offsety = 90;
 /////////////////////////////////////////////////////////
 
-void funkcia(HWND &hWnd, game &toshow)
+void draw(HWND &hWnd, game &toshow)
 {
 	InvalidateRect(hWnd, 0, true);
 
@@ -105,9 +103,12 @@ void funkcia(HWND &hWnd, game &toshow)
 	Graphics graphics(hdc);
 	Pen      pen(Color(255, 34, 139, 34));
 	
-	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, offsetx+i*psize, offsety+0, offsetx+i*psize, offsety+psize*toshow.size());
-	for (int i = 0; i <= toshow.size(); ++i)graphics.DrawLine(&pen, offsetx+0, offsety+i*psize, offsetx+psize*toshow.size(), offsety+i*psize);
-	
+	for (int i = 0; i <= toshow.size(); ++i)
+	{
+		graphics.DrawLine(&pen, offsetx + i*psize, offsety + 0, offsetx + i*psize, offsety + psize*toshow.size());
+		graphics.DrawLine(&pen, offsetx + 0, offsety + i*psize, offsetx + psize*toshow.size(), offsety + i*psize);
+	}
+
 	for (int i = 0; i < toshow.size(); ++i)
 	{
 		for (int j = 0; j < toshow.size(); ++j)
@@ -119,7 +120,7 @@ void funkcia(HWND &hWnd, game &toshow)
 			}
 			if (toshow.owner(i, j) == 2)
 			{
-				graphics.DrawEllipse(&pen, offsetx+j*psize , offsety+i*psize , psize , psize );
+				graphics.DrawEllipse(&pen, offsetx+j*psize, offsety+i*psize, psize, psize );
 			}
 		}
 	}
@@ -140,23 +141,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		a = HIWORD(lParam);
 		b = LOWORD(lParam);
 
-		if (a >= offsety && b >= offsetx && a < offsety+my.size()*psize && b < offsetx+my.size()*psize)
+		if (a >= offsety && 
+			b >= offsetx && 
+			a < offsety+my.size()*psize && 
+			b < offsetx+my.size()*psize )
 		{
 			a = (((a - offsety) / psize));
 			b = (((b - offsetx) / psize));
 
 			if (my.move(my.p_id, a, b) && !my.is_over())
 			{
-				pair<int, int>oko = my.aimove(my.c_id), pom = { -1, -1 };
-				if (oko != pom)
+				pair<int, int>mo = my.aimove(my.c_id), pom = { -1, -1 };
+				if (mo != pom)
 				{
-					a = oko.first;
-					b = oko.second;
+					a = mo.first;
+					b = mo.second;
 				}
 			}
-			
 		}
-		funkcia(hWnd, my);
+
+		draw(hWnd, my);
 		if (my.is_over())
 		{
 			if (my.status() == my.p_id)MessageBox(hWnd, L"Win", NULL, MB_OK);
@@ -167,38 +171,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 	}
 	case WM_COMMAND:
 	{
-		if ((HWND)lParam == hwndupdate)
+		if ((HWND)lParam == hwndButton1 || (HWND)lParam == hwndButton2)
 		{
-			int value1=0, value2=0,  pom = 0;
-			wchar_t a[300] = {0}, b[300] = { 0 };
+			int value1 = 0, value2 = 0, pom = 0;
+			wchar_t a[30] = { 0 }, b[30] = { 0 };
 			pom = GetWindowText(TextBox1, a, 20);
 			pom = GetWindowText(TextBox2, b, 20);
-			wstring wa(a), wb(b);
-			string stra(wa.begin(), wa.end());
-			string strb(wb.begin(), wb.end());
-			value1 = atoi(stra.c_str());
-			value2 = atoi(strb.c_str());
+
+			value1 = _wtoi(a);
+			value2 = _wtoi(b);
 
 			RECT rect;
 			GetWindowRect(hWnd, &rect);
 
-			if (value1 > 0 && value2 > 0)
+			if (my.is_creatable(value1, value2) )
 			{
 				gsize = value1;
 				win = value2;
-				psize = min(rect.right - rect.left - 2 * offsetx, rect.bottom - rect.top -2*offsety) / gsize ;
+				psize = min(rect.right - rect.left - 2 * offsetx, rect.bottom - rect.top - 2 * offsety) / gsize;
 			}
-		}
-		else if ((HWND)lParam == hwndButton1 || (HWND)lParam == hwndButton2)
-		{
+
 			if ((HWND)lParam == hwndButton1)
 			{
-				if( my.newgame(gsize, true, win) )funkcia(hWnd, my);
+				if( my.newgame(gsize, true, win) )draw(hWnd, my);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 			else if ((HWND)lParam == hwndButton2)
 			{
-				if (my.newgame(gsize, false, win))funkcia(hWnd, my);
+				if (my.newgame(gsize, false, win))draw(hWnd, my);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 		}
@@ -213,14 +213,3 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message,
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 }
-
-/*
-int a = 4, b = 4;
-graphics.DrawLine(&pen, b*polsize, a*polsize, (b + 1)*polsize, (a + 1)*polsize);
-graphics.DrawLine(&pen, (b + 1)*polsize, a*polsize, b*polsize, (a + 1)*polsize);
-
-a = 2; b = 3;
-graphics.DrawEllipse(&pen, b*polsize, a*polsize, polsize, polsize);
-
-EndPaint(hWnd, &ps);
-*/

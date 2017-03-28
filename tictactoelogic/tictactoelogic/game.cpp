@@ -7,15 +7,25 @@ int game::size()//returns size of current board
 	return board_size;
 }
 
-bool game::inrange(int a, int b)//returns true if indexes represents valid position, false otherwise
+bool game::is_over()//returns over, boolean variable which denotes if game is over
 {
-	if (a >= 0 && b >= 0 && a < board_size && b < board_size)return true;
+	return over;
+}
+
+bool game::is_creatable(int b_size, int t_win)//return true if these settings(parameters) lead to a valid game
+{
+	return (b_size > 0 && t_win > 0 && b_size >= t_win);
+}
+
+bool game::inrange(int row, int column)//returns true if indexes represents valid position, false otherwise
+{
+	if (row >= 0 && column >= 0 && row < board_size && column < board_size)return true;
 	return false;
 }
 
-int game::owner(int a, int b)//returns id of owner of field on position [a][b], -1 in case of invalid index
+int game::owner(int row, int column)//returns id of owner of field on position [row][column], -1 in case of invalid index
 {
-	if (inrange(a, b))return board[a][b];
+	if (inrange(row, column))return board[row][column];
 	return -1;
 }
 
@@ -32,7 +42,7 @@ int game::status()//return -1 in case game is not ended, returns id of player th
 	return 0;
 }
 
-int game::longestrow(int a, int b, int k)//returns size of longest sequence which contains field [a][b] in direction k
+int game::longestrow(int row, int column, int direction)//returns size of longest sequence which contains field [row][column] in direction "direction"
 {
 	//	[i-1;j-1]	[i-1;j]	[i-1; j+1]
 	//	[i;j-1]		[i;j]		[i;j+1]
@@ -40,30 +50,30 @@ int game::longestrow(int a, int b, int k)//returns size of longest sequence whic
 	//int dx[] = {-1, -1, 0, 1, 1, 1, 0, -1};
 	//int dy[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
 
-	if (!inrange(a, b) || board[a][b] == 0)return 0;
+	if (!inrange(row, column) || board[row][column] == 0)return 0;
 
 	int result = 0;
 
 	for (int i = 0; result<towin; ++i)
 	{
-		if (inrange(a + i*dx[k], b + i*dy[k]) && board[a][b] == board[a + i*dx[k]][b + i*dy[k]])result++;
+		if (inrange(row + i*dx[direction], column + i*dy[direction]) && board[row][column] == board[row + i*dx[direction]][column + i*dy[direction]])result++;
 		else break;
 	}
 
 	return result;
 }
 
-int game::most(int a, int b)//returns longest sequenci which contains [a][b]
+int game::most(int row, int column)//returns longest sequenci which contains [row][column]
 {
 	int maxi = -1;
-	if (!inrange(a, b))return maxi;
-	for (int i = 0; i < 4; ++i)maxi = max(maxi, longestrow(a, b, i) + longestrow(a, b, i + 4) - 1);
+	if (!inrange(row, column))return maxi;
+	for (int i = 0; i < 4; ++i)maxi = max(maxi, longestrow(row, column, i) + longestrow(row, column, i + 4) - 1);
 	return maxi;
 }
 
-bool game::iswinning(int a, int b)//return true if field [a][b] is in winning succession in any direction
+bool game::iswinning(int row, int column)//return true if field [row][column] is in winning succession in any direction
 {
-	if (most(a, b) >= towin)return true;
+	if (most(row, column) >= towin)return true;
 	return false;
 }
 
@@ -103,42 +113,18 @@ bool game::newgame(int size, bool f_move, int tw)
 	return true;
 }
 
-bool game::move(int id, int a, int b)
+bool game::move(int id, int row, int column)
 {
-	if (!over && inrange(a, b) && board[a][b] == 0)
+	if (!over && inrange(row, column) && board[row][column] == 0)
 	{
-		board[a][b] = id;
+		board[row][column] = id;
 		moves++;
-		if (iswinning(a, b) || moves == board_size*board_size)over = true;
+		if (iswinning(row, column) || moves == board_size*board_size)over = true;
 		return true;
 	}
 	cout << "Invalid Move" << endl;
 	return false;
 }
-bool game::is_over()
-{
-	return over;
-}
-
-/*pair<int, int> game::aimove(int id)
-{
-pair<int, int>mymove;
-int guess, pom=0;
-srand(time(NULL));
-
-guess = rand() % (board_size*board_size-moves);
-for(int i=0;i<board_size;++i)for (int j = 0; j < board_size; ++j)if(board[i][j] == 0)
-{
-if (pom == guess && move(id, i, j))
-{
-mymove = { i, j };
-return mymove;
-}
-pom++;
-}
-return{ -1, -1 };
-}*/
-
 
 pair<int, int> game::aimove(int id)
 {
@@ -154,8 +140,6 @@ pair<int, int> game::aimove(int id)
 		mozne.push_back(i*board_size + j);
 	}
 
-	//int guess = rand() % mozne.size();
-
 	for (int i = 0; i < mozne.size(); ++i)
 	{
 		a = mozne[i] / board_size;
@@ -166,14 +150,10 @@ pair<int, int> game::aimove(int id)
 		else if (most(a, b) == maxx)oko.push_back(mozne[i]);
 		board[a][b] = 0;
 	}
-	//cout << random() << endl;
+
 	guess = rand() % oko.size();
-	//cout << oko.size() << endl;
-	//cout << oko[guess] / board_size << " " << oko[guess] % board_size << endl;
 	move(id, oko[guess] / board_size, oko[guess] % board_size);
 	return{ oko[guess] / board_size, oko[guess] % board_size };
-
-	return{ -1, -1 };
 }
 
 void game::bfs(vector<vector<int> >&pg)
@@ -197,7 +177,8 @@ void game::bfs(vector<vector<int> >&pg)
 			nb = b + dy[i];
 			if (inrange(na, nb) && pg[na][nb] == -1)
 			{
-				Q.push(na); Q.push(nb);
+				Q.push(na); 
+				Q.push(nb);
 				pg[na][nb] = pg[a][b] + 1;
 			}
 		}

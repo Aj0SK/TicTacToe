@@ -22,25 +22,26 @@ private:
 
 	void bfs(vector<vector<int> >&pg);
 	
-	bool inrange(int a, int b);
-	int longestrow(int a, int b, int k);
-	bool iswinning(int a, int b);
-	int most(int a, int b);
+	bool inrange(int row, int column);
+	int longestrow(int row, int column, int direction);
+	bool iswinning(int row, int column);
+	int most(int row, int column);
 
 public:
 
 	int p_id, c_id;
 
-	bool newgame(int size, bool f_move, int tw);
+	bool is_creatable(int b_size, int to_win);
+	bool newgame(int size, bool first_move, int tw);
 	
 	int size();
 	bool is_over();
 
-	bool move(int id, int a, int b);
+	bool move(int id, int row, int column);
 	pair<int, int> aimove(int id);
-
-	int owner(int a, int b);
-
+	
+	int owner(int row, int column);
+	
 	int status();
 	void vypis();
 };
