@@ -81,15 +81,16 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 /////////////////////////////////////////////////////////
 // current game
 /////////////////////////////////////////////////////////
-myclass::game my;
-int gsize = 5;
-int win = 3;
-int psize = 50;
+my_namespace::game my_game;
+int game_size = 5;
+int needed_to_win = 3;
+int field_size = 50;
 const int offsetx = 10, offsety = 90;
+//default settings for game
 /////////////////////////////////////////////////////////
 
 //Function which drawes actual game
-void draw(HWND &hWnd, myclass::game &toshow)
+void draw(HWND &hWnd, my_namespace::game &toshow)
 {
 	InvalidateRect(hWnd, 0, true);
 
@@ -104,8 +105,8 @@ void draw(HWND &hWnd, myclass::game &toshow)
 	
 	for (int i = 0; i <= toshow.size(); ++i)
 	{
-		graphics.DrawLine(&game_pen, offsetx + i*psize, offsety, offsetx + i*psize, offsety + psize*toshow.size());//draw vertical lines
-		graphics.DrawLine(&game_pen, offsetx, offsety + i*psize, offsetx + psize * toshow.size(), offsety + i*psize);//draws horizontal lines
+		graphics.DrawLine(&game_pen, offsetx + i*field_size, offsety, offsetx + i*field_size, offsety + field_size*toshow.size());//draw vertical lines
+		graphics.DrawLine(&game_pen, offsetx, offsety + i*field_size, offsetx + field_size * toshow.size(), offsety + i*field_size);//draws horizontal lines
 	}
 
 	for (int i = 0; i < toshow.size(); ++i)
@@ -114,12 +115,12 @@ void draw(HWND &hWnd, myclass::game &toshow)
 		{
 			if (toshow.owner(i, j) == 1 )//we have to draw cross
 			{
-				graphics.DrawLine(&cross_pen, offsetx+j*psize, offsety+i*psize, offsetx+(j + 1)*psize, offsety+(i + 1)*psize);
-				graphics.DrawLine(&cross_pen, offsetx+(j + 1)*psize, offsety+i*psize, offsetx+j*psize, offsety+(i + 1)*psize);
+				graphics.DrawLine(&cross_pen, offsetx+j*field_size, offsety+i*field_size, offsetx+(j + 1)*field_size, offsety+(i + 1)*field_size);
+				graphics.DrawLine(&cross_pen, offsetx+(j + 1)*field_size, offsety+i*field_size, offsetx+j*field_size, offsety+(i + 1)*field_size);
 			}
 			if (toshow.owner(i, j) == 2)//we have to draw circle
 			{
-				graphics.DrawEllipse(&circle_pen, offsetx+j*psize, offsety+i*psize, psize, psize );
+				graphics.DrawEllipse(&circle_pen, offsetx+j*field_size, offsety+i*field_size, field_size, field_size );
 			}
 		}
 	}
@@ -135,32 +136,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_LBUTTONUP:
 	{	
-		int a, b;
-		a = HIWORD(lParam);
-		b = LOWORD(lParam);
+		int row, column;
+		int y_coordinate = HIWORD(lParam);
+		int x_coordinate = LOWORD(lParam);
 
-		if (a >= offsety && b >= offsetx && a < offsety+my.size()*psize && b < offsetx + my.size()*psize )
+		if (y_coordinate >= offsety && x_coordinate >= offsetx && y_coordinate < offsety+my_game.size()*field_size && x_coordinate < offsetx + my_game.size()*field_size )
 		{
-			a = (((a - offsety) / psize));
-			b = (((b - offsetx) / psize));
+			row = (((y_coordinate - offsety) / field_size));
+			column = (((x_coordinate - offsetx) / field_size));
 
-			if (my.make_move(my.player_id(), a, b) && !my.is_over())
+			if (my_game.make_move(my_game.player_id(), row, column) && !my_game.is_over())
 			{
-				pair<int, int>mo = my.make_ai_move(my.computer_id()), pom = { -1, -1 };
+				pair<int, int>computer_move = my_game.make_ai_move();
 
-				if (mo != pom)
+				if (computer_move.first !=  -1)
 				{
-					a = mo.first;
-					b = mo.second;
+					row = computer_move.first;
+					column = computer_move.second;
 				}
 			}
 		}
 
-		draw(hWnd, my);
-		if (my.is_over())
+		draw(hWnd, my_game);
+		if (my_game.is_over())
 		{
-			if (my.game_status() == my.player_id())MessageBox(hWnd, L"Win", NULL, MB_OK);
-			else if (my.game_status() == my.computer_id())MessageBox(hWnd, L"Loose", NULL, MB_OK);
+			if (my_game.game_status() == my_game.player_id())MessageBox(hWnd, L"Win", NULL, MB_OK);
+			else if (my_game.game_status() == my_game.computer_id())MessageBox(hWnd, L"Loose", NULL, MB_OK);
 			else MessageBox(hWnd, L"Draw", NULL, MB_OK);
 		}
 		return 0;
@@ -181,21 +182,21 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			RECT rect;
 			GetWindowRect(hWnd, &rect);
 
-			if ( my.is_createable(value1, value2) )
+			if ( my_game.is_createable(value1, value2) )
 			{
-				gsize = value1;
-				win = value2;
-				psize = min(rect.right - rect.left - 2 * offsetx, rect.bottom - rect.top - 2 * offsety) / gsize;
+				game_size = value1;
+				needed_to_win = value2;
+				field_size = min(rect.right - rect.left - 2 * offsetx, rect.bottom - rect.top - 2 * offsety) / game_size;
 			}
 
 			if ((HWND)lParam == hwndButton1)
 			{
-				if( my.new_game(gsize, true, win) )draw(hWnd, my);
+				if( my_game.new_game(game_size, true, needed_to_win) )draw(hWnd, my_game);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 			else if ((HWND)lParam == hwndButton2)
 			{
-				if (my.new_game(gsize, false, win))draw(hWnd, my);
+				if (my_game.new_game(game_size, false, needed_to_win))draw(hWnd, my_game);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 		}

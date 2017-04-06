@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source.cpp">
+    <ClCompile Include="..\..\tictactoelogic\tictactoelogic\game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\tictactoelogic\tictactoelogic\game.cpp">
+    <ClCompile Include="main_interface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
