@@ -1,7 +1,0 @@
-﻿  game.cpp
-c:\users\andre_000\desktop\tictactoe\tictactoelogic\tictactoelogic\game.cpp(159): warning C4018: '<': signed/unsigned mismatch
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  Source.cpp
-  tictactoelogic.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoelogic\Debug\tictactoelogic.exe
-  tictactoelogic.vcxproj -> C:\Users\andre_000\Desktop\tictactoe\tictactoelogic\Debug\tictactoelogic.pdb (Full PDB)
