@@ -64,6 +64,7 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 		170, 30, 100, 30, hWnd,
 		NULL, NULL, NULL);
 
+	srand(time(nullptr));
 	ShowWindow(hWnd, SW_MAXIMIZE);//ShowWindow(hWnd, iCmdShow);
 	UpdateWindow(hWnd);
 
@@ -80,15 +81,15 @@ INT WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, PSTR, INT iCmdShow)
 /////////////////////////////////////////////////////////
 // current game
 /////////////////////////////////////////////////////////
-game my;
+myclass::game my;
 int gsize = 5;
 int win = 3;
 int psize = 50;
-int offsetx = 10, offsety = 90;
+const int offsetx = 10, offsety = 90;
 /////////////////////////////////////////////////////////
 
 //Function which drawes actual game
-void draw(HWND &hWnd, game &toshow)
+void draw(HWND &hWnd, myclass::game &toshow)
 {
 	InvalidateRect(hWnd, 0, true);
 
@@ -97,21 +98,21 @@ void draw(HWND &hWnd, game &toshow)
 	HDC hdc = BeginPaint(hWnd, &ps);
 	Graphics graphics(hdc);
 	// if you hate my colors :P, you can change it here :
-	Pen game_pen(Color(255, 255, 0, 0));
+	Pen game_pen  (Color(255, 255, 0, 0));
 	Pen	circle_pen(Color(255, 0, 0, 0));
-	Pen cross_pen(Color(255, 34, 139, 34));
+	Pen cross_pen (Color(255, 34, 139, 34));
 	
 	for (int i = 0; i <= toshow.size(); ++i)
 	{
-		graphics.DrawLine(&game_pen, offsetx + i*psize, offsety + 0, offsetx + i*psize, offsety + psize*toshow.size());//draw vertical lines
-		graphics.DrawLine(&game_pen, offsetx + 0, offsety + i*psize, offsetx + psize*toshow.size(), offsety + i*psize);//draws horizontal lines
+		graphics.DrawLine(&game_pen, offsetx + i*psize, offsety, offsetx + i*psize, offsety + psize*toshow.size());//draw vertical lines
+		graphics.DrawLine(&game_pen, offsetx, offsety + i*psize, offsetx + psize * toshow.size(), offsety + i*psize);//draws horizontal lines
 	}
 
 	for (int i = 0; i < toshow.size(); ++i)
 	{
 		for (int j = 0; j < toshow.size(); ++j)
 		{
-			if (toshow.owner(i, j) == 1)//we have to draw cross
+			if (toshow.owner(i, j) == 1 )//we have to draw cross
 			{
 				graphics.DrawLine(&cross_pen, offsetx+j*psize, offsety+i*psize, offsetx+(j + 1)*psize, offsety+(i + 1)*psize);
 				graphics.DrawLine(&cross_pen, offsetx+(j + 1)*psize, offsety+i*psize, offsetx+j*psize, offsety+(i + 1)*psize);
@@ -125,6 +126,7 @@ void draw(HWND &hWnd, game &toshow)
 
 	EndPaint(hWnd, &ps);
 }
+
 
 //Function which manages user events as buttons and click
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -142,9 +144,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			a = (((a - offsety) / psize));
 			b = (((b - offsetx) / psize));
 
-			if (my.move(my.p_id, a, b) && !my.is_over())
+			if (my.make_move(my.player_id(), a, b) && !my.is_over())
 			{
-				pair<int, int>mo = my.aimove(my.c_id), pom = { -1, -1 };
+				pair<int, int>mo = my.make_ai_move(my.computer_id()), pom = { -1, -1 };
 
 				if (mo != pom)
 				{
@@ -157,8 +159,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		draw(hWnd, my);
 		if (my.is_over())
 		{
-			if (my.status() == my.p_id)MessageBox(hWnd, L"Win", NULL, MB_OK);
-			else if (my.status() == my.c_id)MessageBox(hWnd, L"Loose", NULL, MB_OK);
+			if (my.game_status() == my.player_id())MessageBox(hWnd, L"Win", NULL, MB_OK);
+			else if (my.game_status() == my.computer_id())MessageBox(hWnd, L"Loose", NULL, MB_OK);
 			else MessageBox(hWnd, L"Draw", NULL, MB_OK);
 		}
 		return 0;
@@ -188,12 +190,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if ((HWND)lParam == hwndButton1)
 			{
-				if( my.newgame(gsize, true, win) )draw(hWnd, my);
+				if( my.new_game(gsize, true, win) )draw(hWnd, my);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 			else if ((HWND)lParam == hwndButton2)
 			{
-				if (my.newgame(gsize, false, win))draw(hWnd, my);
+				if (my.new_game(gsize, false, win))draw(hWnd, my);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 		}
