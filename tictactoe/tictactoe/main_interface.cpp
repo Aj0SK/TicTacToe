@@ -87,10 +87,12 @@ int needed_to_win = 3;
 int field_size = 50;
 const int offsetx = 10, offsety = 90;
 //default settings for game
+//game size represents size of the board, needed_to_win is minimal length of chain which is needed to win
+//field_size*field_size is size of one field
 /////////////////////////////////////////////////////////
 
 //Function which drawes actual game
-void draw(HWND &hWnd, my_namespace::game &toshow)
+void draw_game(HWND &hWnd, my_namespace::game &toshow)
 {
 	InvalidateRect(hWnd, 0, true);
 
@@ -157,7 +159,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 		}
 
-		draw(hWnd, my_game);
+		draw_game(hWnd, my_game);
 		if (my_game.is_over())
 		{
 			if (my_game.game_status() == my_game.player_id())MessageBox(hWnd, L"Win", NULL, MB_OK);
@@ -191,12 +193,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 			if ((HWND)lParam == hwndButton1)
 			{
-				if( my_game.new_game(game_size, true, needed_to_win) )draw(hWnd, my_game);
+				if( my_game.new_game(game_size, true, needed_to_win) )draw_game(hWnd, my_game);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 			else if ((HWND)lParam == hwndButton2)
 			{
-				if (my_game.new_game(game_size, false, needed_to_win))draw(hWnd, my_game);
+				if (my_game.new_game(game_size, false, needed_to_win))draw_game(hWnd, my_game);
 				else MessageBox(hWnd, L"Unable to create game", NULL, MB_OK);
 			}
 		}
